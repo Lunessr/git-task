@@ -1,3 +1,3 @@
-# Working with git and GitHub
+# Users and goods API
 
-Push to GitHub successfully
+Created with express, mongoose and body-parser

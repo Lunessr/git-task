@@ -55,7 +55,7 @@ const addUser = (req, res) => {
     const { name, age, email, tel, admin } = req.body;
     const user = new User({ name, age, email, tel, admin});
     if ({ email } == User.find(req.body.email)) {
-        req.status(400).send(error);
+        res.status(400).send(error);
     } else {
         user
             .save()
@@ -83,7 +83,7 @@ const updateUser = (req, res) => {
     const { name, age, email, tel, admin} = req.body;
     const { id } = req.params;
     if ( { id } != User.findById(req.params.id)) {
-        req.status(404).send(error);
+        res.status(404).send(error);
     } else {
     User
         .findByIdAndUpdate(id, { name, age, email, tel, admin}, { new: true })
@@ -94,7 +94,7 @@ const updateUser = (req, res) => {
 
 const deleteUser = (req, res) => {
     if ( { id } != User.findById(req.params.id)) {
-        req.status(404).send(error);
+        res.status(404).send(error);
     } else {
     User
         .findByIdAndDelete(req.params.id)
@@ -106,7 +106,7 @@ const deleteUser = (req, res) => {
 server.post('/users', jsonParser, addUser);
 server.get('/users/:id', getUser);
 server.get('/users', getUsers);
-server.put('/users/update/:id', updateUser);
+server.put('/users/:id', jsonParser, updateUser);
 server.delete('/users/:id', deleteUser);
 
 server.use((req, res) => {
