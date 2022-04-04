@@ -1,6 +1,10 @@
-const userRepository = require('../../modules/users/users.repository');
+const express = require('express');
+const bodyParser = require('body-parser');
 const userService = require('./users.service');
 const { errors } = require('../../errors');
+
+const router = express.Router();
+const jsonParser = bodyParser.json();
 
 const handleError = (res, error) => {
   let err = errors.get(error.message);
@@ -58,10 +62,10 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = {
-  addUser,
-  getUser,
-  getUsers,
-  updateUser,
-  deleteUser,
-};
+router.post('/users', jsonParser, addUser);
+router.get('/users/:id', getUser);
+router.get('/users', getUsers);
+router.put('/users/:id', jsonParser, updateUser);
+router.delete('/users/:id', deleteUser);
+
+module.exports = router;

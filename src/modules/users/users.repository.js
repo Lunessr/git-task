@@ -8,7 +8,7 @@ class UserRepository {
   async findById(id) {
     let user;
     try {
-      user = await User.findById(id);
+      user = await User.findById(id).exec();
     } catch (error) {
       user = null;
     }
