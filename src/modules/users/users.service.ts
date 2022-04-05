@@ -1,16 +1,18 @@
-const userRepository = require('../users/users.repository');
-const { ERROR_MESSAGES } = require('../../errors');
+import { User } from './interfaces/user';
+
+import { userRepository } from '../users/users.repository';
+import { ERROR_MESSAGES } from '../../errors';
 
 class UserService {
-  async create({ name, age, email, tel, role }) {
-    const existingUser = await userRepository.findByEmail({ email: email });
-    if (existingUser.length > 0) {
+  async create(email: User['email'], User: User): Promise<User | Error> {
+    const existingUser = await userRepository.findByEmail(email);
+    if (existingUser !== null) {
       throw new Error(ERROR_MESSAGES.ALREADY_CREATED);
     }
-    return userRepository.create({ name, age, email, tel, role });
+    return userRepository.create(User);
   }
 
-  async findById(id) {
+  async findById(id: User['_id']): Promise<User | Error> {
     const existingUser = await userRepository.findById(id);
     if (existingUser === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
@@ -18,24 +20,24 @@ class UserService {
     return existingUser;
   }
 
-  async find() {
+  async find(): Promise<User[]> {
     return userRepository.find();
   }
 
-  async update(id, { name, age, email, tel, role }) {
+  async update(id: User['_id'], email: User['email'], User: User): Promise<User | Error> {
     const userWithId = await userRepository.findById(id);
     if (userWithId === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
     }
-    const userWithEmail = await userRepository.findByEmail({ email: email });
-    if (userWithEmail.length > 0) {
+    const userWithEmail = await userRepository.findByEmail(email);
+    if (userWithEmail === null) {
       throw new Error(ERROR_MESSAGES.ALREADY_CREATED);
     }
-    const updatedUser = await userRepository.update(id, { name, age, email, tel, role });
+    const updatedUser = await userRepository.update(id, User);
     return updatedUser;
   }
 
-  async delete(id) {
+  async delete(id: User['_id']): Promise<void | Error> {
     const existingUser = await userRepository.findById(id);
     if (existingUser === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
@@ -46,4 +48,4 @@ class UserService {
 }
 
 const userService = new UserService();
-module.exports = userService;
+export { userService };

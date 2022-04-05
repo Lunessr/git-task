@@ -12,4 +12,4 @@ errors.set(ERROR_MESSAGES.ID_NOT_EXIST, {
   status: 404,
 });
 
-module.exports = { errors, ERROR_MESSAGES };
+export { errors, ERROR_MESSAGES };

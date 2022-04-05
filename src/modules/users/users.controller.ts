@@ -1,7 +1,8 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const userService = require('./users.service');
-const { errors } = require('../../errors');
+import * as express from 'express';
+import { User } from './interfaces/user';
+import * as bodyParser from 'body-parser';
+import { userService } from './users.service';
+import { errors } from '../../errors';
 
 const router = express.Router();
 const jsonParser = bodyParser.json();
@@ -16,9 +17,9 @@ const handleError = (res, error) => {
 };
 
 const addUser = async (req, res) => {
-  const { name, age, email, tel, role } = req.body;
+  const User: User = req.body;
   try {
-    const user = await userService.create({ name, age, email, tel, role });
+    const user = await userService.create(User['email'], User);
     res.status(201).send(user);
   } catch (error) {
     handleError(res, error);
@@ -44,9 +45,9 @@ const getUsers = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const { name, age, email, tel, role } = req.body;
+  const User: User = req.body;
   try {
-    const user = await userService.update(req.params.id, { name, age, email, tel, role });
+    const user = await userService.update(req.params.id, User['email'], User);
     res.status(200).json(user);
   } catch (error) {
     handleError(res, error);
@@ -68,4 +69,4 @@ router.get('/users', getUsers);
 router.put('/users/:id', jsonParser, updateUser);
 router.delete('/users/:id', deleteUser);
 
-module.exports = router;
+export { router };
