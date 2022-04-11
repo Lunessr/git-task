@@ -4,12 +4,12 @@ import { userRepository } from '../users/users.repository';
 import { ERROR_MESSAGES } from '../../errors';
 
 class UserService {
-  async create(email: User['email'], User: User): Promise<User | Error> {
-    const existingUser = await userRepository.findByEmail(email);
+  async create(user: User): Promise<User | Error> {
+    const existingUser = await userRepository.findByEmail(user['email']);
     if (existingUser !== null) {
       throw new Error(ERROR_MESSAGES.ALREADY_CREATED);
     }
-    return userRepository.create(User);
+    return userRepository.create(user);
   }
 
   async findById(id: User['_id']): Promise<User | Error> {
@@ -20,20 +20,20 @@ class UserService {
     return existingUser;
   }
 
-  async find(): Promise<User[]> {
-    return userRepository.find();
+  async find({ filter, sort, paging }): Promise<User[]> {
+    return userRepository.findAndSort({ filter, sort, paging });
   }
 
-  async update(id: User['_id'], email: User['email'], User: User): Promise<User | Error> {
-    const userWithId = await userRepository.findById(id);
+  async update(user: User): Promise<User | Error> {
+    const userWithId = await userRepository.findById(user['_id']);
     if (userWithId === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
     }
-    const userWithEmail = await userRepository.findByEmail(email);
+    const userWithEmail = await userRepository.findByEmail(user['email']);
     if (userWithEmail === null) {
       throw new Error(ERROR_MESSAGES.ALREADY_CREATED);
     }
-    const updatedUser = await userRepository.update(id, User);
+    const updatedUser = await userRepository.update(user);
     return updatedUser;
   }
 

@@ -1,10 +1,11 @@
 import { Role } from '../../../enums/role';
 
 export interface User {
-  readonly _id: string;
+  _id: string;
   name: string;
+  surname: string;
   age: number;
-  readonly email: string;
+  email: string;
   tel: number;
   role: Role;
 }

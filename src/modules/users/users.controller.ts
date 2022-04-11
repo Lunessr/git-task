@@ -3,9 +3,11 @@ import { User } from './interfaces/user';
 import * as bodyParser from 'body-parser';
 import { userService } from './users.service';
 import { errors } from '../../errors';
+// import * as url from 'url';
 
 const router = express.Router();
 const jsonParser = bodyParser.json();
+// const url_parts = url.parse(url, true)
 
 const handleError = (res, error) => {
   let err = errors.get(error.message);
@@ -17,10 +19,9 @@ const handleError = (res, error) => {
 };
 
 const addUser = async (req, res) => {
-  const User: User = req.body;
   try {
-    const user = await userService.create(User['email'], User);
-    res.status(201).send(user);
+    const createdUser = await userService.create(req.body);
+    res.status(201).send(createdUser);
   } catch (error) {
     handleError(res, error);
   }
@@ -37,7 +38,7 @@ const getUser = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
-    const users = await userService.find();
+    const users = await userService.find(req.params);
     res.status(200).send(users);
   } catch (error) {
     handleError(res, error);
@@ -45,10 +46,9 @@ const getUsers = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const User: User = req.body;
   try {
-    const user = await userService.update(req.params.id, User['email'], User);
-    res.status(200).json(user);
+    const updatedUser = await userService.update(req.body);
+    res.status(200).json(updatedUser);
   } catch (error) {
     handleError(res, error);
   }
