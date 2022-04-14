@@ -1,13 +1,11 @@
 import * as express from 'express';
-import { User } from './interfaces/user';
 import * as bodyParser from 'body-parser';
 import { userService } from './users.service';
 import { errors } from '../../errors';
-// import * as url from 'url';
+import { UserParameters } from './interfaces/parameters';
 
 const router = express.Router();
 const jsonParser = bodyParser.json();
-// const url_parts = url.parse(url, true)
 
 const handleError = (res, error) => {
   let err = errors.get(error.message);
@@ -19,8 +17,9 @@ const handleError = (res, error) => {
 };
 
 const addUser = async (req, res) => {
+  let { _id, name, surname, age, email, tel, role } = req.body;
   try {
-    const createdUser = await userService.create(req.body);
+    const createdUser = await userService.create({ _id, name, surname, age, email, tel, role });
     res.status(201).send(createdUser);
   } catch (error) {
     handleError(res, error);
@@ -36,9 +35,16 @@ const getUser = async (req, res) => {
   }
 };
 
-const getUsers = async (req, res) => {
+const getUsers = async (req: express.Request, res): Promise<void> => {
+  let filterBy = req.query.filterBy;
+  let filterText = req.query.filterText;
+  let sortBy = req.query.sortBy;
+  let direction = req.query.direction;
+  let limit = Number(req.query.limit);
+  let skip = Number(req.query.skip);
+
   try {
-    const users = await userService.find(req.params);
+    const users = await userService.find({ filterBy, filterText, sortBy, direction, limit, skip } as UserParameters);
     res.status(200).send(users);
   } catch (error) {
     handleError(res, error);

@@ -1,11 +1,6 @@
-// об'єкт з об'єктами філтер, сорт і пейджинг з ключами
-// obj User ext userDocument
-// <= function
-
 import { User } from './interfaces/user';
 import { UserSchema } from '../../schemas/users-schema';
-
-const user = {};
+import { UserParameters } from './interfaces/parameters';
 
 class UserRepository {
   async findByEmail(email: User['email']): Promise<User> {
@@ -37,37 +32,27 @@ class UserRepository {
     return createdUsers[0];
   }
 
-  async findAndSort(parameters: {
-    filter: {
-      name: User['name'];
-      surname: User['surname'];
-      email: User['email'];
-    };
-    sort: {
-      name: User['name'];
-      email: User['email'];
-      tel: User['tel'];
-    };
-    paging: {
-      limit: number;
-      skip: number;
-    };
-  }): Promise<User[]> {
-    let exspectedUsers = UserSchema.find(parameters?.filter);
-    if (parameters.filter) {
-      exspectedUsers = UserSchema.find(parameters.filter);
+  async findAndSort(parameters: UserParameters): Promise<User[]> {
+    let exspectedUsers = UserSchema.find();
+    if (parameters?.filterBy && parameters?.filterText) {
+      exspectedUsers.find({ [parameters.filterBy]: parameters.filterText });
     }
-    exspectedUsers.sort(parameters?.sort);
-    if (parameters.sort) {
-      exspectedUsers.sort(parameters.sort);
+
+    if (parameters?.sortBy) {
+      if (parameters?.direction === 'asc') {
+        exspectedUsers.sort({ [parameters.sortBy]: 1 });
+      } else if (parameters?.direction === 'desc') {
+        exspectedUsers.sort({ [parameters.sortBy]: -1 });
+      }
+    } else {
+      exspectedUsers.sort({ createAt: -1 });
     }
-    exspectedUsers.skip(parameters?.paging?.skip);
-    if (parameters.paging.skip) {
-      exspectedUsers.skip(parameters.paging.skip);
+
+    if (parameters?.skip) {
+      exspectedUsers.skip(parameters.skip);
     }
-    exspectedUsers.limit(parameters?.paging?.limit);
-    if (parameters.paging.limit) {
-      exspectedUsers.limit(parameters.paging.limit);
+    if (parameters?.limit) {
+      exspectedUsers.limit(parameters.limit);
     }
     let receivedUsers = exspectedUsers.exec();
     return receivedUsers;

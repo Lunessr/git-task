@@ -13,16 +13,17 @@ try {
   console.log(error);
 }
 
-server.listen(3000, (error) => {
-  error ? console.log(error) : console.log('Server started');
+server.listen(3000, () => {
+  console.log('Server started');
 });
 
-server.get('/', (req, res) => {
+server.get('/', (req: express.Request, res) => {
   const title = 'Home page';
   res.send('<h1>Home page</h1>');
 });
 
 server.use(router);
+server.use(express.json());
 
 server.use((req, res) => {
   const title = 'Error Page';
