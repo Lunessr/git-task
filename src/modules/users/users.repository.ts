@@ -1,4 +1,4 @@
-import { User } from './interfaces/user';
+import { User, UserWithoutId } from './interfaces/user';
 import { UserSchema } from '../../schemas/users-schema';
 import { UserParameters } from './interfaces/parameters';
 
@@ -19,42 +19,26 @@ class UserRepository {
     return user;
   }
 
-  update(user: User): Promise<User> {
-    return UserSchema.findByIdAndUpdate(user['id'], user, { new: true }).exec();
+  update(id, user: User): Promise<User> {
+    return UserSchema.findByIdAndUpdate(id, user, { new: true }).exec();
   }
 
   delete(id: User['_id']): Promise<void> {
     return UserSchema.findByIdAndDelete(id).exec();
   }
 
-  async create(user: User): Promise<User> {
+  async create(user: UserWithoutId): Promise<User> {
     const createdUsers = await UserSchema.insertMany([user]);
     return createdUsers[0];
   }
 
   async findAndSort(parameters: UserParameters): Promise<User[]> {
-    let exspectedUsers = UserSchema.find();
-    if (parameters?.filterBy && parameters?.filterText) {
-      exspectedUsers.find({ [parameters.filterBy]: parameters.filterText });
-    }
+    const exspectedUsers = UserSchema.find({ [parameters.filterBy]: parameters.filterText })
+      .sort({ [parameters.sortBy]: parameters.direction })
+      .skip(parameters.skip)
+      .limit(parameters.limit);
 
-    if (parameters?.sortBy) {
-      if (parameters?.direction === 'asc') {
-        exspectedUsers.sort({ [parameters.sortBy]: 1 });
-      } else if (parameters?.direction === 'desc') {
-        exspectedUsers.sort({ [parameters.sortBy]: -1 });
-      }
-    } else {
-      exspectedUsers.sort({ createAt: -1 });
-    }
-
-    if (parameters?.skip) {
-      exspectedUsers.skip(parameters.skip);
-    }
-    if (parameters?.limit) {
-      exspectedUsers.limit(parameters.limit);
-    }
-    let receivedUsers = exspectedUsers.exec();
+    const receivedUsers = exspectedUsers.exec();
     return receivedUsers;
   }
 }

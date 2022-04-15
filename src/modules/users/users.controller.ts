@@ -8,7 +8,7 @@ const router = express.Router();
 const jsonParser = bodyParser.json();
 
 const handleError = (res, error) => {
-  let err = errors.get(error.message);
+  const err = errors.get(error.message);
   if (err) {
     res.status(err.status).send(err.message);
   } else {
@@ -17,9 +17,9 @@ const handleError = (res, error) => {
 };
 
 const addUser = async (req, res) => {
-  let { _id, name, surname, age, email, tel, role } = req.body;
+  const { name, surname, age, email, tel, role } = req.body;
   try {
-    const createdUser = await userService.create({ _id, name, surname, age, email, tel, role });
+    const createdUser = await userService.create({ name, surname, age, email, tel, role });
     res.status(201).send(createdUser);
   } catch (error) {
     handleError(res, error);
@@ -36,15 +36,17 @@ const getUser = async (req, res) => {
 };
 
 const getUsers = async (req: express.Request, res): Promise<void> => {
-  let filterBy = req.query.filterBy;
-  let filterText = req.query.filterText;
-  let sortBy = req.query.sortBy;
-  let direction = req.query.direction;
-  let limit = Number(req.query.limit);
-  let skip = Number(req.query.skip);
+  const { filterBy, filterText, sortBy, direction, limit, skip } = req.query;
 
   try {
-    const users = await userService.find({ filterBy, filterText, sortBy, direction, limit, skip } as UserParameters);
+    const users = await userService.find({
+      filterBy,
+      filterText,
+      sortBy,
+      direction,
+      limit: Number(limit),
+      skip: Number(skip),
+    } as UserParameters);
     res.status(200).send(users);
   } catch (error) {
     handleError(res, error);
@@ -53,7 +55,7 @@ const getUsers = async (req: express.Request, res): Promise<void> => {
 
 const updateUser = async (req, res) => {
   try {
-    const updatedUser = await userService.update(req.body);
+    const updatedUser = await userService.update(req.params.id, req.body);
     res.status(200).json(updatedUser);
   } catch (error) {
     handleError(res, error);

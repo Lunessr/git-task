@@ -9,3 +9,5 @@ export interface User {
   tel: number;
   role: Role;
 }
+
+export type UserWithoutId = Omit<User, '_id'>;
