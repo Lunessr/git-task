@@ -4,7 +4,7 @@ import { ERROR_MESSAGES } from '../../errors';
 import { UserParameters } from './interfaces/parameters';
 
 class UserService {
-  async create(user: UserWithoutId): Promise<User | Error> {
+  async create(user: UserWithoutId): Promise<User> {
     const existingUser = await userRepository.findByEmail(user.email);
     if (existingUser !== null) {
       throw new Error(ERROR_MESSAGES.ALREADY_CREATED);
@@ -12,7 +12,7 @@ class UserService {
     return userRepository.create(user);
   }
 
-  async findById(id: User['_id']): Promise<User | Error> {
+  async findById(id: User['_id']): Promise<User> {
     const existingUser = await userRepository.findById(id);
     if (existingUser === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
@@ -25,7 +25,7 @@ class UserService {
     return userRepository.findAndSort({ filterBy, filterText, sortBy, direction, limit, skip });
   }
 
-  async update(id, user: User): Promise<User | Error> {
+  async update(id, user: User): Promise<User> {
     const userWithId = await userRepository.findById(id);
     if (userWithId === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
@@ -38,7 +38,7 @@ class UserService {
     return updatedUser;
   }
 
-  async delete(id: User['_id']): Promise<void | Error> {
+  async delete(id: User['_id']): Promise<void> {
     const existingUser = await userRepository.findById(id);
     if (existingUser === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);

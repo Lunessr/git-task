@@ -33,13 +33,11 @@ class UserRepository {
   }
 
   async findAndSort(parameters: UserParameters): Promise<User[]> {
-    const exspectedUsers = UserSchema.find({ [parameters.filterBy]: parameters.filterText })
+    return UserSchema.find({ [parameters.filterBy]: parameters.filterText })
       .sort({ [parameters.sortBy]: parameters.direction })
       .skip(parameters.skip)
-      .limit(parameters.limit);
-
-    const receivedUsers = exspectedUsers.exec();
-    return receivedUsers;
+      .limit(parameters.limit)
+      .exec();
   }
 }
 
