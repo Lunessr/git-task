@@ -1,3 +1,3 @@
 # Users and goods API
 
-Created with express, mongoose and body-parser
+Created with: express, mongoose, body-parser, TypeScript
