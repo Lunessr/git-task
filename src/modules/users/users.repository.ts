@@ -1,43 +1,53 @@
 import { User, UserWithoutId } from './interfaces/user';
-import { UserSchema } from '../../schemas/users-schema';
+import { UserSchema } from '../../schemas/users.schema';
 import { UserParameters } from './interfaces/parameters';
+import { userDocToUser } from '../../mappers/user.mapper';
 
 class UserRepository {
   async findByEmail(email: User['email']): Promise<User> {
     const usersArr: Array<User> = await UserSchema.find({ email: email }).exec();
+    const existingUserArr: User = userDocToUser(usersArr[0]);
 
-    return usersArr[0] || null;
+    return existingUserArr || null;
   }
 
-  async findById(id: User['_id']): Promise<User | null> {
+  async findById(id: User['id']): Promise<User | null> {
     let user: User;
+    let existingUser: User;
     try {
       user = await UserSchema.findById(id).exec();
+      existingUser = userDocToUser(user);
     } catch (error) {
-      user = null;
+      existingUser = null;
     }
-    return user;
+    return existingUser;
   }
 
-  update(id, user: User): Promise<User> {
-    return UserSchema.findByIdAndUpdate(id, user, { new: true }).exec();
+  async update(id, user: User): Promise<User> {
+    const updatedUser = await UserSchema.findByIdAndUpdate(id, user, { new: true }).exec();
+    const existingUser = userDocToUser(updatedUser);
+    return existingUser;
   }
 
-  delete(id: User['_id']): Promise<void> {
+  delete(id: User['id']): Promise<void> {
     return UserSchema.findByIdAndDelete(id).exec();
   }
 
   async create(user: UserWithoutId): Promise<User> {
     const createdUsers = await UserSchema.insertMany([user]);
-    return createdUsers[0];
+    const existingUser = userDocToUser(createdUsers[0]);
+    return existingUser;
   }
 
   async findAndSort(parameters: UserParameters): Promise<User[]> {
-    return UserSchema.find({ [parameters.filterBy]: parameters.filterText })
+    const sortedUsers = UserSchema.find({ [parameters.filterBy]: parameters.filterText })
       .sort({ [parameters.sortBy]: parameters.direction })
       .skip(parameters.skip)
       .limit(parameters.limit)
       .exec();
+
+    const existingUsers = (await sortedUsers).map((item) => userDocToUser(item));
+    return existingUsers;
   }
 }
 

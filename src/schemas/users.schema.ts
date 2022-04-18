@@ -30,4 +30,6 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
+userSchema.set('toObject', { virtuals: true });
+
 export const UserSchema = model('User', userSchema);

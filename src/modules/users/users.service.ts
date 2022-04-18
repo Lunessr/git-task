@@ -12,7 +12,7 @@ class UserService {
     return userRepository.create(user);
   }
 
-  async findById(id: User['_id']): Promise<User> {
+  async findById(id: User['id']): Promise<User> {
     const existingUser = await userRepository.findById(id);
     if (existingUser === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
@@ -38,7 +38,7 @@ class UserService {
     return updatedUser;
   }
 
-  async delete(id: User['_id']): Promise<void> {
+  async delete(id: User['id']): Promise<void> {
     const existingUser = await userRepository.findById(id);
     if (existingUser === null) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);

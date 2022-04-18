@@ -1,7 +1,7 @@
 import { Role } from '../../../enums/role';
 
 export interface User {
-  _id: string;
+  id: string;
   name: string;
   surname: string;
   age: number;
@@ -10,4 +10,4 @@ export interface User {
   role: Role;
 }
 
-export type UserWithoutId = Omit<User, '_id'>;
+export type UserWithoutId = Omit<User, 'id'>;
