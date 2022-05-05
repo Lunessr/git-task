@@ -10,7 +10,7 @@
     },
 
     {
-      "name": "Launch index.ts",
+      "name": "Launch debugger",
       "type": "node",
       "request": "launch",
       "runtimeArgs": ["-r", "ts-node/register"],

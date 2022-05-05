@@ -26,10 +26,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    password: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
-
-userSchema.set('toObject', { virtuals: true });
 
 export const UserSchema = model('User', userSchema);

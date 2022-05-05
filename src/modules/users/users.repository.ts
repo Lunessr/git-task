@@ -6,7 +6,11 @@ import { userDocToUser } from '../../mappers/user.mapper';
 class UserRepository {
   async findByEmail(email: User['email']): Promise<User> {
     const usersArr: Array<User> = await UserSchema.find({ email: email }).exec();
-    return undefined ? null : userDocToUser(usersArr[0]);
+    if (usersArr[0] === undefined) {
+      return null;
+    } else {
+      return userDocToUser(usersArr[0]);
+    }
   }
 
   async findById(id: User['id']): Promise<User | null> {
