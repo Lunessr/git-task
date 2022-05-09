@@ -2,6 +2,8 @@ import * as express from 'express';
 import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import { router } from './modules/users/users.controller';
+import * as bodyParser from 'body-parser';
+import { tokenValidation } from './modules/middlewares/authMiddleware';
 
 const server = express();
 dotenv.config();
@@ -13,19 +15,18 @@ try {
   console.log(error);
 }
 
-server.listen(3000, () => {
-  console.log('Server started');
-});
+server.use(bodyParser.json());
+server.use(tokenValidation);
+server.use(router);
 
 server.get('/', (req: express.Request, res) => {
-  const title = 'Home page';
   res.send('<h1>Home page</h1>');
 });
 
-server.use(router);
-server.use(express.json());
-
 server.use((req, res) => {
-  const title = 'Error Page';
   res.status(404).send('error');
+});
+
+server.listen(3000, () => {
+  console.log(`Server started`);
 });

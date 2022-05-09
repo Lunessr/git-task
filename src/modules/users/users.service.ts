@@ -2,9 +2,12 @@ import { User, UserWithoutId } from './interfaces/user';
 import { userRepository } from '../users/users.repository';
 import { ERROR_MESSAGES } from '../../errors';
 import { UserParameters } from './interfaces/parameters';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 
 class UserService {
   async create(user: UserWithoutId): Promise<User> {
+    user.password = await bcrypt.hash(user.password, 10);
     const existingUser = await userRepository.findByEmail(user.email);
     if (existingUser !== null) {
       throw new Error(ERROR_MESSAGES.ALREADY_CREATED);
@@ -45,6 +48,15 @@ class UserService {
     }
     const deleted = await userRepository.delete(id);
     return deleted;
+  }
+
+  async login(email: User['email'], password: User['password']): Promise<String> {
+    const userWithEmail = await userRepository.findByEmail(email);
+    const userPassword = await bcrypt.compare(password, userWithEmail.password);
+    if (userWithEmail === null || !userPassword) {
+      throw new Error(ERROR_MESSAGES.INCORRECT_LOGIN);
+    }
+    return jwt.sign({ id: userWithEmail.id }, process.env.SECRET_KEY, { expiresIn: '1h' });
   }
 }
 

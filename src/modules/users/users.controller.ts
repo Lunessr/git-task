@@ -1,26 +1,16 @@
 import * as express from 'express';
-import * as bodyParser from 'body-parser';
 import { userService } from './users.service';
-import { errors } from '../../errors';
+import { handleError } from '../../errors';
 import { UserParameters } from './interfaces/parameters';
+import { userDocToUserWithoutPass } from '../../mappers/user.mapper';
 
 const router = express.Router();
-const jsonParser = bodyParser.json();
-
-const handleError = (res, error) => {
-  const err = errors.get(error.message);
-  if (err) {
-    res.status(err.status).send(err.message);
-  } else {
-    res.status(500).send(error.message);
-  }
-};
 
 const addUser = async (req, res) => {
-  const { name, surname, age, email, tel, role } = req.body;
+  const { name, surname, age, email, tel, role, password } = req.body;
   try {
-    const createdUser = await userService.create({ name, surname, age, email, tel, role });
-    res.status(201).send(createdUser);
+    const createdUser = await userService.create({ name, surname, age, email, tel, role, password });
+    res.status(201).send(userDocToUserWithoutPass(createdUser));
   } catch (error) {
     handleError(res, error);
   }
@@ -29,7 +19,7 @@ const addUser = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const user = await userService.findById(req.params.id);
-    res.status(200).json(user);
+    res.status(200).json(userDocToUserWithoutPass(user));
   } catch (error) {
     handleError(res, error);
   }
@@ -47,7 +37,7 @@ const getUsers = async (req: express.Request, res): Promise<void> => {
       limit: Number(limit),
       skip: Number(skip),
     } as UserParameters);
-    res.status(200).send(users);
+    res.status(200).send(users.map(userDocToUserWithoutPass));
   } catch (error) {
     handleError(res, error);
   }
@@ -56,7 +46,7 @@ const getUsers = async (req: express.Request, res): Promise<void> => {
 const updateUser = async (req, res) => {
   try {
     const updatedUser = await userService.update(req.params.id, req.body);
-    res.status(200).json(updatedUser);
+    res.status(200).json(userDocToUserWithoutPass(updatedUser));
   } catch (error) {
     handleError(res, error);
   }
@@ -71,10 +61,21 @@ const deleteUser = async (req, res) => {
   }
 };
 
-router.post('/users', jsonParser, addUser);
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const userToken = await userService.login(email, password);
+    res.send(userToken);
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+router.post('/users', addUser);
 router.get('/users/:id', getUser);
 router.get('/users', getUsers);
-router.put('/users/:id', jsonParser, updateUser);
+router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
+router.post('/login', loginUser);
 
 export { router };
