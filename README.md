@@ -1,3 +1,3 @@
-# Users and goods API
+# Users API
 
 Created with: NODE-JS, express, mongoose, TypeScript
