@@ -1,7 +1,6 @@
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
-import {} from './modules/users/users.controller';
 import * as bodyParser from 'body-parser';
 import { tokenValidation } from './modules/middlewares/authMiddleware';
 import { router } from './routes';

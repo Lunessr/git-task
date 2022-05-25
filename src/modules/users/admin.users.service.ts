@@ -1,5 +1,5 @@
 import { User, UserWithoutId } from './interfaces/user';
-import { IUserService } from './interfaces/user.servise.interface';
+import { IUserService } from './interfaces/user.service.interface';
 import { userRepository } from './users.repository';
 import { ERROR_MESSAGES } from '../../errors';
 import { UserParameters } from './interfaces/parameters';
