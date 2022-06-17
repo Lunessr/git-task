@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { userService } from '../../modules/users/users.service';
+import { adminUserService } from '../users/admin.users.service';
 
 export const tokenValidation = (req: Request, res, next) => {
   if (req.path == '/login') {
@@ -16,7 +16,7 @@ export const tokenValidation = (req: Request, res, next) => {
       res.status(401).send('Unauthorized');
       return;
     }
-    req.user = await userService.findById(decodedToken.id);
+    req.user = await adminUserService.findById(decodedToken.id);
     return next();
   });
 };

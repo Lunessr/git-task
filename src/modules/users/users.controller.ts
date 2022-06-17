@@ -1,14 +1,17 @@
-import * as express from 'express';
-import { userService } from './users.service';
-import { handleError } from '../../errors';
+import { ERROR_MESSAGES, handleError } from '../../errors';
 import { UserParameters } from './interfaces/parameters';
 import { userDocToUserWithoutPass } from '../../mappers/user.mapper';
-
-const router = express.Router();
+import { User } from './interfaces/user';
+import { Role } from '../../enums/role';
+import { usersFactory } from '../users/users.factory';
 
 const addUser = async (req, res) => {
   const { name, surname, age, email, tel, role, password } = req.body;
   try {
+    if (role !== Role.ADMIN && role !== Role.CUSTOMER) {
+      throw new Error(ERROR_MESSAGES.NO_SUCH_ROLE);
+    }
+    const userService = usersFactory.chooseUserService(req.user);
     const createdUser = await userService.create({ name, surname, age, email, tel, role, password });
     res.status(201).send(userDocToUserWithoutPass(createdUser));
   } catch (error) {
@@ -18,6 +21,7 @@ const addUser = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
+    const userService = usersFactory.chooseUserService(req.user);
     const user = await userService.findById(req.params.id);
     res.status(200).json(userDocToUserWithoutPass(user));
   } catch (error) {
@@ -25,10 +29,11 @@ const getUser = async (req, res) => {
   }
 };
 
-const getUsers = async (req: express.Request, res): Promise<void> => {
+const getUsers = async (req, res): Promise<void> => {
   const { filterBy, filterText, sortBy, direction, limit, skip } = req.query;
 
   try {
+    const userService = usersFactory.chooseUserService(req.user);
     const users = await userService.find({
       filterBy,
       filterText,
@@ -45,7 +50,11 @@ const getUsers = async (req: express.Request, res): Promise<void> => {
 
 const updateUser = async (req, res) => {
   try {
-    const updatedUser = await userService.update(req.params.id, req.body);
+    if (req.body.role !== Role.ADMIN && req.body.role !== Role.CUSTOMER) {
+      throw new Error(ERROR_MESSAGES.NO_SUCH_ROLE);
+    }
+    const userService = usersFactory.chooseUserService(req.user);
+    const updatedUser: User = await userService.update(req.user, req.params.id, req.body);
     res.status(200).json(userDocToUserWithoutPass(updatedUser));
   } catch (error) {
     handleError(res, error);
@@ -54,7 +63,8 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    await userService.delete(req.params.id);
+    const userService = usersFactory.chooseUserService(req.user);
+    await userService.delete(req.user, req.params.id);
     res.status(200).json('Current user is deleted');
   } catch (error) {
     handleError(res, error);
@@ -64,6 +74,7 @@ const deleteUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
+    const userService = usersFactory.chooseUserService(req.user);
     const userToken = await userService.login(email, password);
     res.send(userToken);
   } catch (error) {
@@ -71,11 +82,4 @@ const loginUser = async (req, res) => {
   }
 };
 
-router.post('/users', addUser);
-router.get('/users/:id', getUser);
-router.get('/users', getUsers);
-router.put('/users/:id', updateUser);
-router.delete('/users/:id', deleteUser);
-router.post('/login', loginUser);
-
-export { router };
+export { addUser, getUser, getUsers, updateUser, deleteUser, loginUser };

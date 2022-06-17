@@ -4,6 +4,7 @@ const ERROR_MESSAGES = {
   NO_SUCH_EMAIL: 'No user with such email',
   INCORRECT_LOGIN: 'Wrong login or password',
   NO_AUTHORIZE: 'Unauthorized',
+  NO_SUCH_ROLE: 'No such role. Choose Admin or Customer',
 };
 
 const errors = new Map().set(ERROR_MESSAGES.ALREADY_CREATED, {
@@ -25,6 +26,10 @@ errors.set(ERROR_MESSAGES.INCORRECT_LOGIN, {
 errors.set(ERROR_MESSAGES.NO_AUTHORIZE, {
   message: 'Unauthorized',
   status: 401,
+});
+errors.set(ERROR_MESSAGES.NO_SUCH_ROLE, {
+  message: 'No such role. Choose Admin or Customer',
+  status: 400,
 });
 
 const handleError = (res, error) => {

@@ -1,23 +1,30 @@
 import { User, UserWithoutId } from './interfaces/user';
+import { IUserService } from './interfaces/user.service.interface';
 import { userRepository } from '../users/users.repository';
 import { ERROR_MESSAGES } from '../../errors';
 import { UserParameters } from './interfaces/parameters';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import { Role } from '../../enums/role';
 
-class UserService {
+class CustomerUserService implements IUserService {
   async create(user: UserWithoutId): Promise<User> {
-    user.password = await bcrypt.hash(user.password, 10);
-    const existingUser = await userRepository.findByEmail(user.email);
-    if (existingUser !== null) {
-      throw new Error(ERROR_MESSAGES.ALREADY_CREATED);
-    }
-    return userRepository.create(user);
+    console.log('');
+    return {
+      id: 'string',
+      name: 'string',
+      surname: 'string',
+      age: 1,
+      email: 'string',
+      tel: 1,
+      role: Role.CUSTOMER,
+      password: 'string',
+    };
   }
 
   async findById(id: User['id']): Promise<User> {
     const existingUser = await userRepository.findById(id);
-    if (existingUser === null) {
+    if (existingUser === null || existingUser.role === Role.ADMIN) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
     }
     return existingUser;
@@ -25,28 +32,29 @@ class UserService {
 
   async find(parameters: UserParameters): Promise<User[]> {
     const { filterBy, filterText, sortBy = 'name', direction = 'desc', limit = 3, skip = 0 } = parameters;
-    return userRepository.findAndSort({ filterBy, filterText, sortBy, direction, limit, skip });
+    let existingUsers = await userRepository.findAndSort({ filterBy, filterText, sortBy, direction, limit, skip });
+    return existingUsers.filter((user) => user.role === Role.CUSTOMER);
   }
 
-  async update(id, user: User): Promise<User> {
-    const userWithId = await userRepository.findById(id);
-    if (userWithId === null) {
+  async update(callerUser: User, idUserToUpdate: User['id'], userToUpdate: User): Promise<User> {
+    const userWithId = await userRepository.findById(idUserToUpdate);
+    if (userWithId === null || userWithId.id !== callerUser.id) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
     }
-    const userWithEmail = await userRepository.findByEmail(user.email);
+    const userWithEmail = await userRepository.findByEmail(userToUpdate.email);
     if (userWithEmail === null) {
       throw new Error(ERROR_MESSAGES.ALREADY_CREATED);
     }
-    const updatedUser = await userRepository.update(id, user);
+    const updatedUser = await userRepository.update(idUserToUpdate, userToUpdate);
     return updatedUser;
   }
 
-  async delete(id: User['id']): Promise<void> {
-    const existingUser = await userRepository.findById(id);
-    if (existingUser === null) {
+  async delete(callerUser: User, idUserToDelete: User['id']): Promise<void> {
+    const existingUser = await userRepository.findById(idUserToDelete);
+    if (existingUser === null || existingUser.id !== callerUser.id) {
       throw new Error(ERROR_MESSAGES.ID_NOT_EXIST);
     }
-    const deleted = await userRepository.delete(id);
+    const deleted = await userRepository.delete(idUserToDelete);
     return deleted;
   }
 
@@ -60,5 +68,5 @@ class UserService {
   }
 }
 
-const userService = new UserService();
-export { userService };
+const customerUserService = new CustomerUserService();
+export { customerUserService };

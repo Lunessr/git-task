@@ -1,9 +1,9 @@
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
-import { router } from './modules/users/users.controller';
 import * as bodyParser from 'body-parser';
 import { tokenValidation } from './modules/middlewares/authMiddleware';
+import { router } from './routes';
 
 const server = express();
 dotenv.config();
